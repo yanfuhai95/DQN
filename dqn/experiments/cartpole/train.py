@@ -1,10 +1,16 @@
+import time
+import random
 from itertools import count
 
 import torch
 import gymnasium as gym
+import matplotlib
+import matplotlib.pyplot as plt
 
+from dqn.model import DQN
 
-from dqn.model.dqn.dqn import DQN
+# Set up random seed with current time for randomness.
+random.seed(time.time())
 
 # BATCH_SIZE is the number of transitions sampled from the replay buffer
 # GAMMA is the discount factor as mentioned in the previous section
@@ -30,7 +36,6 @@ else:
 
 episode_durations = []
 
-
 def plot_durations(show_result=False):
     plt.figure(1)
     durations_t = torch.tensor(episode_durations, dtype=torch.float)
@@ -39,9 +44,11 @@ def plot_durations(show_result=False):
     else:
         plt.clf()
         plt.title('Training...')
+        
     plt.xlabel('Episode')
     plt.ylabel('Duration')
     plt.plot(durations_t.numpy())
+    
     # Take 100 episode averages and plot them too
     if len(durations_t) >= 100:
         means = durations_t.unfold(0, 100, 1).mean(1).view(-1)
@@ -49,31 +56,35 @@ def plot_durations(show_result=False):
         plt.plot(means.numpy())
 
     plt.pause(0.001)  # pause a bit so that plots are updated
-    if not show_result:
-        display.display(plt.gcf())
-        display.clear_output(wait=True)
-    else:
-        display.display(plt.gcf())
+
+    if show_result:
+        plt.show()
 
 
-if __name__ == "__main":
+if __name__ == "__main__":
     env = gym.make("CartPole-v1")
     state, info = env.reset()
 
     n_observations = len(state)
-    action_space = [int(action) for action in env.action_space]
 
-    dqn = DQN(n_observations, action_space)
+    dqn = DQN(
+        n_observations, env.action_space, 
+        batch_size=BATCH_SIZE, 
+        gamma=GAMMA, 
+        lr=LR, 
+        tau=TAU, 
+        eps_start=EPS_START, 
+        eps_end=EPS_END, 
+        eps_decay=EPS_DECAY,
+        mode='train')
 
     for i_episode in range(num_episodes):
         state, info = env.reset()
-        state = torch.tensor(state, dtype=torch.float32,
-                             device=device).unsqueeze(0)
+        state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
 
         for t in count():
             action = dqn.select_action(state)
-            observation, reward, terminated, truncated, _ = env.step(
-                action.item())
+            observation, reward, terminated, truncated, _ = env.step(action.item())
             reward = torch.tensor([reward], device=device)
             done = terminated or truncated
 
@@ -84,8 +95,18 @@ if __name__ == "__main":
                     observation, dtype=torch.float32, device=device).unsqueeze(0)
 
             dqn.optimize(state, action, reward, next_state)
-
+        
+            # Move to next state
+            state = next_state
+                
             if done:
                 episode_durations.append(t + 1)
                 plot_durations()
                 break
+
+    dqn.save('model/cart_pole.pth')
+    
+    print('Complete')
+    plot_durations(show_result=True)
+    plt.ioff()
+    plt.show()
