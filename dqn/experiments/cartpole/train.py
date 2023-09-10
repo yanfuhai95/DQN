@@ -1,3 +1,4 @@
+import os
 import time
 import random
 from itertools import count
@@ -134,6 +135,9 @@ if __name__ == "__main__":
         episode_rewards.append(total_reward)
         plot_result()
 
+    if not os.path.exists('model'):
+        os.makedirs('model')
+        
     dqn.save('model/cart_pole.pth')
     
     print('Complete')
