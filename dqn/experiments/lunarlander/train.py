@@ -31,7 +31,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("Device: ", device)
 
 if torch.cuda.is_available():
-    num_episodes = 600
+    num_episodes = 1000
 else:
     num_episodes = 50
 
@@ -85,7 +85,7 @@ def plot_result(show_result=False):
 
 
 if __name__ == "__main__":
-    env = gym.make("CartPole-v1")
+    env = gym.make("LunarLander-v2")
     state, info = env.reset()
 
     n_observations = len(state)
@@ -134,7 +134,7 @@ if __name__ == "__main__":
         episode_rewards.append(total_reward)
         plot_result()
 
-    dqn.save('model/cart_pole.pth')
+    dqn.save('model/lunar_lander.pth')
     
     print('Complete')
     plot_result(show_result=True)
