@@ -27,7 +27,7 @@ pip install -e .
 ### 3. Change to the directory `dqn/experiments/carpole`
 
 ```shell
-cd cd dqn/experiments/cartpole
+cd dqn/experiments/cartpole
 ```
 
 ### 4. Train the model
