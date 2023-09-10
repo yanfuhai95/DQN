@@ -36,7 +36,7 @@ cd dqn/experiments/cartpole
 python3 train.py
 ```
 
-After training finished, a model would be saved at the relative path 'model/cart_pole.pth'
+After training finished, a model would be saved at the relative path `model/cart_pole.pth`
 
 ### 5. Evaluate the model
 
@@ -44,4 +44,4 @@ After training finished, a model would be saved at the relative path 'model/cart
 python3 evaluate.py
 ```
 
-`evaluate.py` would load the model save at 'model/cart_pole.pth'.
+`evaluate.py` would load the model save at `model/cart_pole.pth`.
